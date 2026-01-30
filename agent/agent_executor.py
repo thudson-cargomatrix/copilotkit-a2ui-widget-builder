@@ -33,19 +33,18 @@ from a2a.utils import (
 )
 from a2a.utils.errors import ServerError
 from a2ui.a2ui_extension import create_a2ui_part, try_activate_a2ui_extension
-from agent import RestaurantAgent
+from agent import UIBuilderAgent
 
 logger = logging.getLogger(__name__)
 
 
-class RestaurantAgentExecutor(AgentExecutor):
-    """Restaurant AgentExecutor Example."""
+class UIBuilderAgentExecutor(AgentExecutor):
+    """UI Builder AgentExecutor - builds dynamic user interfaces using A2UI."""
 
     def __init__(self, base_url: str):
         # Instantiate two agents: one for UI and one for text-only.
-        # The appropriate one will be chosen at execution time.
-        self.ui_agent = RestaurantAgent(base_url=base_url, use_ui=True)
-        self.text_agent = RestaurantAgent(base_url=base_url, use_ui=False)
+        self.ui_agent = UIBuilderAgent(base_url=base_url, use_ui=True)
+        self.text_agent = UIBuilderAgent(base_url=base_url, use_ui=False)
 
     async def execute(
         self,
@@ -94,22 +93,9 @@ class RestaurantAgentExecutor(AgentExecutor):
             action = ui_event_part.get("actionName")
             ctx = ui_event_part.get("context", {})
 
-            if action == "book_restaurant":
-                restaurant_name = ctx.get("restaurantName", "Unknown Restaurant")
-                address = ctx.get("address", "Address not provided")
-                image_url = ctx.get("imageUrl", "")
-                query = f"USER_WANTS_TO_BOOK: {restaurant_name}, Address: {address}, ImageURL: {image_url}"
-
-            elif action == "submit_booking":
-                restaurant_name = ctx.get("restaurantName", "Unknown Restaurant")
-                party_size = ctx.get("partySize", "Unknown Size")
-                reservation_time = ctx.get("reservationTime", "Unknown Time")
-                dietary_reqs = ctx.get("dietary", "None")
-                image_url = ctx.get("imageUrl", "")
-                query = f"User submitted a booking for {restaurant_name} for {party_size} people at {reservation_time} with dietary requirements: {dietary_reqs}. The image URL is {image_url}"
-
-            else:
-                query = f"User submitted an event: {action} with data: {ctx}"
+            # Generic action handling - pass all actions to the agent with their context
+            context_str = ", ".join([f"{k}: {v}" for k, v in ctx.items()])
+            query = f"User triggered action '{action}' with context: {context_str}. Please respond appropriately with a UI update or confirmation."
         else:
             logger.info("No a2ui UI event part found. Falling back to text input.")
             query = context.get_user_input()
@@ -132,9 +118,11 @@ class RestaurantAgentExecutor(AgentExecutor):
                 )
                 continue
 
+            # For UI interactions, default to input_required to allow further interaction
+            # Actions ending in "submit" or "confirm" are treated as completing the task
             final_state = (
                 TaskState.completed
-                if action == "submit_booking"
+                if action and ("submit" in action.lower() or "confirm" in action.lower())
                 else TaskState.input_required
             )
 

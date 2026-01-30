@@ -1,118 +1,356 @@
-# CopilotKit <> A2A + A2UI Starter
+# A2UI Widget Builder
 
+A general-purpose UI builder agent that dynamically generates rich, interactive user interfaces using **A2UI** (Agent-to-UI) protocol. Built with **CopilotKit**, **Next.js**, and **Google ADK**.
 
-This is a starter template for building AI agents that use [A2UI](https://a2ui.org) and [CopilotKit](https://copilotkit.ai). It provides a modern Next.js application with an integrated restaurant finder agent that can find restaurants and book reservations
+## What is This?
 
-![Demo](Demo.gif)
+This project demonstrates how AI agents can generate dynamic user interfaces on-the-fly. Instead of returning plain text, the agent creates fully interactive UI components - forms, dashboards, cards, galleries, and more - rendered directly in the chat interface.
 
-## Prerequisites
+**Ask the agent to build any UI:**
+- "Create a contact form"
+- "Build a dashboard with stats"
+- "Make a user profile card"
+- "Design an image gallery"
+- "Create a settings panel with toggles"
 
-- Gemeni API Key (for the ADK/A2A agent)
-- Python 3.12+
-- uv
-- Node.js 20+
-- Any of the following package managers:
-  - pnpm (recommended)
-  - npm
-  - yarn
-  - bun
+## Architecture
 
-> **Note:** This repository ignores lock files (package-lock.json, yarn.lock, pnpm-lock.yaml, bun.lockb) to avoid conflicts between different package managers. Each developer should generate their own lock file using their preferred package manager. After that, make sure to delete it from the .gitignore.
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         Frontend (Next.js)                       │
+│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────┐ │
+│  │  CopilotChat    │───▶│  CopilotKit     │───▶│ A2UI        │ │
+│  │  (React)        │    │  Runtime        │    │ Renderer    │ │
+│  └─────────────────┘    └────────┬────────┘    └─────────────┘ │
+└──────────────────────────────────┼──────────────────────────────┘
+                                   │ A2A Protocol
+                                   ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                      Agent (Python + Google ADK)                 │
+│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────┐ │
+│  │  UIBuilder      │───▶│  LLM (Gemini)   │───▶│ A2UI JSON   │ │
+│  │  Agent          │    │                 │    │ Generator   │ │
+│  └─────────────────┘    └─────────────────┘    └─────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### How It Works
+
+1. **User sends a message** via the CopilotChat interface
+2. **CopilotKit Runtime** routes the request to the Python agent via A2A protocol
+3. **UIBuilder Agent** (powered by Gemini) interprets the request and generates A2UI JSON
+4. **A2UI Renderer** converts the JSON into interactive React components
+5. **User interacts** with buttons, forms, etc. - actions are sent back to the agent
+
+## Tech Stack
+
+### Frontend
+| Technology | Purpose |
+|------------|---------|
+| **Next.js 16** | React framework with App Router |
+| **React 19** | UI library |
+| **TypeScript 5.9** | Type safety |
+| **Tailwind CSS 4** | Styling |
+| **CopilotKit** | AI chat infrastructure |
+| **@copilotkit/a2ui-renderer** | Renders A2UI JSON to React components |
+| **@a2ui/lit** | A2UI web components library |
+| **Hono** | Lightweight web framework for API routes |
+| **Zod** | Schema validation |
+
+### Backend (Python Agent)
+| Technology | Purpose |
+|------------|---------|
+| **Python 3.13+** | Runtime |
+| **Google ADK** | Agent Development Kit |
+| **LiteLLM** | LLM abstraction layer |
+| **Gemini** | LLM (via Google AI) |
+| **A2A SDK** | Agent-to-Agent protocol |
+| **Uvicorn** | ASGI server |
+| **Starlette** | Web framework |
+
+### Protocols
+| Protocol | Purpose |
+|----------|---------|
+| **A2A** | Agent-to-Agent communication |
+| **A2UI** | Agent-to-UI declarative spec (by Google) |
+| **AG-UI** | Agent-GUI protocol by CopilotKit |
+
+## A2UI Components
+
+The agent can generate UIs using these components:
+
+### Layout Components
+| Component | Description |
+|-----------|-------------|
+| `Row` | Horizontal flex layout with distribution & alignment |
+| `Column` | Vertical flex layout with distribution & alignment |
+| `List` | Scrollable list with dynamic data binding |
+| `Card` | Elevated container with shadow |
+| `Tabs` | Tabbed interface |
+| `Modal` | Popup dialog overlay |
+
+### Content Components
+| Component | Description |
+|-----------|-------------|
+| `Text` | Text with styles (h1-h5, body, caption) + markdown |
+| `Image` | Images with fit modes and size hints |
+| `Icon` | 41 Material Design icons |
+| `Video` | Embedded video player |
+| `AudioPlayer` | Audio playback |
+| `Divider` | Visual separator |
+
+### Form Components
+| Component | Description |
+|-----------|-------------|
+| `TextField` | Text input (short, long, number, date, password) |
+| `DateTimeInput` | Date and/or time picker |
+| `CheckBox` | Boolean toggle with label |
+| `MultipleChoice` | Multi-select options |
+| `Slider` | Range slider |
+| `Button` | Interactive button with actions |
+
+### Available Icons
+```
+accountCircle, add, arrowBack, arrowForward, attachFile, calendarToday,
+call, camera, check, close, delete, download, edit, event, error,
+favorite, favoriteOff, folder, help, home, info, locationOn, lock,
+lockOpen, mail, menu, moreVert, moreHoriz, notificationsOff, notifications,
+payment, person, phone, photo, print, refresh, search, send, settings,
+share, shoppingCart, star, starHalf, starOff, upload, visibility,
+visibilityOff, warning
+```
+
+## Project Structure
+
+```
+with-a2a-a2ui/
+├── app/                          # Next.js frontend
+│   ├── api/copilotkit/          # CopilotKit API route
+│   │   └── [[...slug]]/route.tsx
+│   ├── page.tsx                 # Main chat interface
+│   ├── theme.ts                 # A2UI theme configuration
+│   ├── layout.tsx               # Root layout
+│   └── globals.css              # Global styles
+│
+├── agent/                        # Python agent
+│   ├── __main__.py              # Entry point & A2A server
+│   ├── agent.py                 # UIBuilderAgent class
+│   ├── agent_executor.py        # Request handler
+│   ├── prompt_builder.py        # Prompts & UI examples
+│   ├── tools.py                 # Agent tools (optional)
+│   └── pyproject.toml           # Python dependencies
+│
+├── a2ui_extension/              # A2UI protocol extension
+├── scripts/                     # Setup & run scripts
+├── package.json                 # Node dependencies
+└── .env                         # Environment variables
+```
 
 ## Getting Started
 
-1. Install dependencies using your preferred package manager:
-```bash
-# Using pnpm (recommended)
-pnpm install
+### Prerequisites
+- Node.js 20+
+- Python 3.13+
+- pnpm (recommended), npm, yarn, or bun
+- uv (Python package manager)
 
-# Using npm
-npm install
+### Installation
 
-# Using yarn
-yarn install
+1. **Clone the repository**
+   ```bash
+   git clone <your-repo-url>
+   cd with-a2a-a2ui
+   ```
 
-# Using bun
-bun install
-```
+2. **Install dependencies**
+   ```bash
+   pnpm install
+   ```
+   This also runs `postinstall` which sets up the Python agent with `uv sync`.
 
-> **Note:** This will automatically setup the Python environment as well.
->
-> If you have manual isseus, you can run:
->
-> ```sh
-> npm run install:agent
-> ```
+3. **Set up environment variables**
+   Create a `.env` file in the root:
+   ```
+   GEMINI_API_KEY=your_gemini_api_key_here
+   ```
+   Get your API key from [Google AI Studio](https://aistudio.google.com/apikey)
 
+4. **Run the development server**
+   ```bash
+   pnpm dev
+   ```
 
-3. Set up your Gemeni API key:
+   Or run frontend and agent separately:
+   ```bash
+   # Terminal 1 - Frontend
+   pnpm dev:ui
 
-Create a `.env` file inside the `agent` folder with the following content:
+   # Terminal 2 - Agent
+   cd agent && uv run python __main__.py
+   ```
 
-```
-GEMENI_API_KEY=sk-...your-openai-key-here...
-```
-
-
-4. Start the development server:
-```bash
-# Using pnpm
-pnpm dev
-
-# Using npm
-npm run dev
-
-# Using yarn
-yarn dev
-
-# Using bun
-bun run dev
-```
-
-This will start both the UI and agent servers concurrently.
+5. **Open in browser**
+   - Frontend: http://localhost:3000
+   - Agent: http://localhost:10002
 
 ## Available Scripts
-The following scripts can also be run using your preferred package manager:
-- `dev` - Starts both UI and agent servers in development mode
-- `dev:debug` - Starts development servers with debug logging enabled
-- `dev:ui` - Starts only the Next.js UI server
-- `dev:agent` - Starts only the PydanticAI agent server
-- `build` - Builds the Next.js application for production
-- `start` - Starts the production server
-- `lint` - Runs ESLint for code linting
-- `install:agent` - Installs Python dependencies for the agent
 
-## Documentation
+| Script | Description |
+|--------|-------------|
+| `pnpm dev` | Start both UI and agent servers |
+| `pnpm dev:debug` | Start with debug logging |
+| `pnpm dev:ui` | Start only Next.js frontend |
+| `pnpm dev:agent` | Start only Python agent |
+| `pnpm build` | Build for production |
+| `pnpm start` | Start production server |
+| `pnpm lint` | Run ESLint |
+| `pnpm install:agent` | Install Python dependencies |
 
-The main UI component is in `src/app/page.tsx`, but most of the UI comes from from the agent in the form of A2UI declarative components. To see and edit the components it can generate, look in `agent/prompt_builder.py`.
-To generate new components, try the [A2UI Composer](https://a2ui-editor.ag-ui.com)
+## How the Agent Generates UIs
 
-## 📚 Documentation
-- [A2UI + CopilotKit Documentation](https://docs.copilotkit.ai/a2a) - Learn more about how to use A2UI with CopilotKit
-- [A2UI Documentation](https://a2ui.org) - Learn more about A2UI and its capabilities
-- [CopilotKit Documentation](https://docs.copilotkit.ai) - Explore CopilotKit's capabilities
-- [Next.js Documentation](https://nextjs.org/docs) - Learn about Next.js features and API
+The agent uses a structured approach to generate UIs:
 
-## Contributing
+### Response Format
+The agent responds with two parts separated by `---a2ui_JSON---`:
+```
+Here's a contact form for you!
 
-Feel free to submit issues and enhancement requests! This starter is designed to be easily extensible.
+---a2ui_JSON---
+[
+  { "beginRendering": { ... } },
+  { "surfaceUpdate": { ... } },
+  { "dataModelUpdate": { ... } }
+]
+```
 
-## License
+### A2UI Message Types
+| Message | Purpose |
+|---------|---------|
+| `beginRendering` | Initialize a new UI surface with root component and styles |
+| `surfaceUpdate` | Define/update components on the surface |
+| `dataModelUpdate` | Populate dynamic data for components |
+| `deleteSurface` | Remove a UI surface |
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+### Example: Simple Card
+```json
+[
+  {
+    "beginRendering": {
+      "surfaceId": "card",
+      "root": "card-root",
+      "styles": { "primaryColor": "#6366F1", "font": "Inter" }
+    }
+  },
+  {
+    "surfaceUpdate": {
+      "surfaceId": "card",
+      "components": [
+        { "id": "card-root", "component": { "Card": { "child": "content" } } },
+        { "id": "content", "component": { "Column": { "children": { "explicitList": ["title", "body"] } } } },
+        { "id": "title", "component": { "Text": { "usageHint": "h2", "text": { "path": "/title" } } } },
+        { "id": "body", "component": { "Text": { "text": { "path": "/body" } } } }
+      ]
+    }
+  },
+  {
+    "dataModelUpdate": {
+      "surfaceId": "card",
+      "path": "/",
+      "contents": [
+        { "key": "title", "valueString": "Hello World" },
+        { "key": "body", "valueString": "This is a simple card." }
+      ]
+    }
+  }
+]
+```
+
+## Customization
+
+### Modify the Agent Prompt
+Edit `agent/prompt_builder.py`:
+- `GENERAL_UI_EXAMPLES` - Add or modify example UI templates
+- `get_ui_prompt()` - Adjust creative guidelines
+- `AGENT_INSTRUCTION` in `agent.py` - Change agent behavior
+
+### Customize the Theme
+Edit `app/theme.ts` to change:
+- Colors (primary, background, text)
+- Typography (fonts, sizes, weights)
+- Component-specific styles (Button, Card, TextField, etc.)
+- Border radius, padding, spacing
+
+### Add Custom Tools
+Edit `agent/tools.py` to add tools the agent can use:
+```python
+def my_custom_tool(param: str) -> str:
+    """Description of what this tool does."""
+    return result
+```
+
+Then register in `agent.py`:
+```python
+tools=[my_custom_tool]
+```
+
+## Key Concepts
+
+### CopilotKit
+[CopilotKit](https://copilotkit.ai) provides the infrastructure for building AI-powered chat interfaces:
+- `CopilotChat` - Pre-built chat UI component
+- `CopilotKitProvider` - Context provider for runtime configuration
+- `CopilotRuntime` - Backend runtime for agent communication
+- `A2UIMessageRenderer` - Renders A2UI JSON to React components
+
+### A2UI (Agent-to-UI)
+[A2UI](https://a2ui.org) is a declarative UI specification created by Google:
+- **Declarative JSON** - Not executable code (secure by design)
+- **Framework agnostic** - Same JSON works on React, Flutter, SwiftUI, etc.
+- **Streaming friendly** - Flat structure for incremental generation
+- **Data binding** - Components reference data model paths
+
+### A2A (Agent-to-Agent)
+The A2A protocol enables communication between AI agents. The Python agent runs as an A2A server:
+- Receives requests via HTTP
+- Returns responses including A2UI messages
+- Handles button actions and form submissions
 
 ## Troubleshooting
 
 ### Agent Connection Issues
-If you see "I'm having trouble connecting to my tools", make sure:
-1. The ADK agent is running on port 10002
-2. Your Gemini API key is set correctly
-3. Both servers started successfully
+If you see connection errors:
+1. Ensure the agent is running on port 10002
+2. Check your Gemini API key is set correctly in `.env`
+3. Verify both servers started successfully
 
 ### Python Dependencies
-If you encounter Python import errors:
+If you encounter import errors:
 ```bash
 cd agent
 uv sync
-uv run .
+uv run python __main__.py
 ```
+
+### Windows Issues
+If scripts fail on Windows, run commands manually:
+```bash
+# Frontend
+pnpm dev:ui
+
+# Agent (in separate terminal)
+cd agent
+python -m uv run python __main__.py
+```
+
+## Resources
+
+- [CopilotKit Documentation](https://docs.copilotkit.ai)
+- [A2UI Specification](https://a2ui.org)
+- [A2UI Composer](https://a2ui-composer.ag-ui.com/) - Visual UI builder tool
+- [Google ADK](https://github.com/google/adk-python)
+- [A2A Protocol](https://github.com/google/A2A)
+- [A2UI + CopilotKit Docs](https://docs.copilotkit.ai/a2a)
+
+## License
+
+This project is based on the CopilotKit A2A-A2UI starter template. Licensed under the MIT License.

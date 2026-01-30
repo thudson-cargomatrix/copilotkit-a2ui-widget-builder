@@ -28,33 +28,41 @@ from google.adk.sessions import InMemorySessionService
 from google.genai import types
 from prompt_builder import (
     A2UI_SCHEMA,
-    RESTAURANT_UI_EXAMPLES,
+    GENERAL_UI_EXAMPLES,
     get_text_prompt,
     get_ui_prompt,
 )
-from tools import get_restaurants
 
 logger = logging.getLogger(__name__)
 
 AGENT_INSTRUCTION = """
-    You are a helpful restaurant finding assistant. Your goal is to help users find and book restaurants using a rich UI.
+    You are a creative UI builder assistant. Your goal is to help users create rich, interactive user interfaces using A2UI.
 
-    To achieve this, you MUST follow this logic:
+    You can build ANY type of UI the user requests:
+    - Dashboards with stats and charts
+    - Forms for data entry (contact forms, surveys, sign-up forms)
+    - Card lists and grids (products, profiles, articles)
+    - Profile cards and user displays
+    - Image galleries
+    - Navigation menus
+    - Settings panels
+    - Any other UI component or layout
 
-    1.  **For finding restaurants:**
-        a. You MUST call the `get_restaurants` tool. Extract the cuisine, location, and a specific number (`count`) of restaurants from the user's query (e.g., for "top 5 chinese places", count is 5).
-        b. After receiving the data, you MUST follow the instructions precisely to generate the final a2ui UI JSON, using the appropriate UI example from the `prompt_builder.py` based on the number of restaurants.
+    IMPORTANT GUIDELINES:
+    1. Be creative and design UIs that match what the user is asking for
+    2. Use appropriate components (forms for input, lists for collections, cards for grouped info)
+    3. Choose colors that fit the theme (use hex codes like #6366F1 for indigo, #10B981 for green)
+    4. Create logical component hierarchies with meaningful IDs
+    5. Add realistic placeholder data in your dataModelUpdate
+    6. Use proper text styling (h1 for titles, h2 for sections, body for content)
 
-    2.  **For booking a table (when you receive a query like 'USER_WANTS_TO_BOOK...'):**
-        a. You MUST use the appropriate UI example from `prompt_builder.py` to generate the UI, populating the `dataModelUpdate.contents` with the details from the user's query.
-
-    3.  **For confirming a booking (when you receive a query like 'User submitted a booking...'):**
-        a. You MUST use the appropriate UI example from `prompt_builder.py` to generate the confirmation UI, populating the `dataModelUpdate.contents` with the final booking details.
+    When the user asks for a UI, generate it directly - you don't need external tools.
+    Use your knowledge to create appropriate sample data and realistic layouts.
 """
 
 
-class RestaurantAgent:
-    """An agent that finds restaurants based on user criteria."""
+class UIBuilderAgent:
+    """An agent that builds dynamic user interfaces using A2UI."""
 
     SUPPORTED_CONTENT_TYPES = ["text", "text/plain"]
 
@@ -71,14 +79,10 @@ class RestaurantAgent:
             memory_service=InMemoryMemoryService(),
         )
 
-        # --- MODIFICATION: Wrap the schema ---
         # Load the A2UI_SCHEMA string into a Python object for validation
         try:
-            # First, load the schema for a *single message*
             single_message_schema = json.loads(A2UI_SCHEMA)
-
             # The prompt instructs the LLM to return a *list* of messages.
-            # Therefore, our validation schema must be an *array* of the single message schema.
             self.a2ui_schema_object = {"type": "array", "items": single_message_schema}
             logger.info(
                 "A2UI_SCHEMA successfully loaded and wrapped in an array validator."
@@ -86,29 +90,27 @@ class RestaurantAgent:
         except json.JSONDecodeError as e:
             logger.error(f"CRITICAL: Failed to parse A2UI_SCHEMA: {e}")
             self.a2ui_schema_object = None
-        # --- END MODIFICATION ---
 
     def get_processing_message(self) -> str:
-        return "Finding restaurants that match your criteria..."
+        return "Building your UI..."
 
     def _build_agent(self, use_ui: bool) -> LlmAgent:
-        """Builds the LLM agent for the restaurant agent."""
+        """Builds the LLM agent for the UI builder."""
         LITELLM_MODEL = os.getenv("LITELLM_MODEL", "gemini/gemini-2.5-flash")
 
         if use_ui:
-            # Construct the full prompt with UI instructions, examples, and schema
             instruction = AGENT_INSTRUCTION + get_ui_prompt(
-                self.base_url, RESTAURANT_UI_EXAMPLES
+                self.base_url, GENERAL_UI_EXAMPLES
             )
         else:
             instruction = get_text_prompt()
 
         return LlmAgent(
             model=LiteLlm(model=LITELLM_MODEL),
-            name="restaurant_agent",
-            description="An agent that finds restaurants and helps book tables.",
+            name="ui_builder_agent",
+            description="An agent that builds dynamic user interfaces using A2UI.",
             instruction=instruction,
-            tools=[get_restaurants],
+            tools=[],  # No external tools needed - agent generates UIs directly
         )
 
     async def stream(self, query, session_id) -> AsyncIterable[dict[str, Any]]:

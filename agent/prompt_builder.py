@@ -789,26 +789,28 @@ A2UI_SCHEMA = r'''
 }
 '''
 
-RESTAURANT_UI_EXAMPLES = """
----BEGIN SINGLE_COLUMN_LIST_EXAMPLE---
+GENERAL_UI_EXAMPLES = """
+The following are reference examples showing A2UI JSON structure. You should use these as inspiration
+but CREATE YOUR OWN unique layouts based on what the user requests. Be creative!
+
+---BEGIN CARD_LIST_EXAMPLE---
+Shows a vertical list of cards with image, title, description, and action button.
 [
-  {{ "beginRendering": {{ "surfaceId": "default", "root": "root-column", "styles": {{ "primaryColor": "#FF0000", "font": "Roboto" }} }} }},
+  {{ "beginRendering": {{ "surfaceId": "default", "root": "root-column", "styles": {{ "primaryColor": "#6366F1", "font": "Inter" }} }} }},
   {{ "surfaceUpdate": {{
     "surfaceId": "default",
     "components": [
       {{ "id": "root-column", "component": {{ "Column": {{ "children": {{ "explicitList": ["title-heading", "item-list"] }} }} }} }},
-      {{ "id": "title-heading", "component": {{ "Text": {{ "usageHint": "h1", "text": {{ "literalString": "Top Restaurants" }} }} }} }},
+      {{ "id": "title-heading", "component": {{ "Text": {{ "usageHint": "h1", "text": {{ "literalString": "Your Items" }} }} }} }},
       {{ "id": "item-list", "component": {{ "List": {{ "direction": "vertical", "children": {{ "template": {{ "componentId": "item-card-template", "dataBinding": "/items" }} }} }} }} }},
       {{ "id": "item-card-template", "component": {{ "Card": {{ "child": "card-layout" }} }} }},
       {{ "id": "card-layout", "component": {{ "Row": {{ "children": {{ "explicitList": ["template-image", "card-details"] }} }} }} }},
-      {{ "id": "template-image", weight: 1, "component": {{ "Image": {{ "url": {{ "path": "imageUrl" }} }} }} }},
-      {{ "id": "card-details", weight: 2, "component": {{ "Column": {{ "children": {{ "explicitList": ["template-name", "template-rating", "template-detail", "template-link", "template-book-button"] }} }} }} }},
+      {{ "id": "template-image", "weight": 1, "component": {{ "Image": {{ "url": {{ "path": "imageUrl" }}, "usageHint": "smallFeature" }} }} }},
+      {{ "id": "card-details", "weight": 2, "component": {{ "Column": {{ "children": {{ "explicitList": ["template-name", "template-desc", "template-action"] }} }} }} }},
       {{ "id": "template-name", "component": {{ "Text": {{ "usageHint": "h3", "text": {{ "path": "name" }} }} }} }},
-      {{ "id": "template-rating", "component": {{ "Text": {{ "text": {{ "path": "rating" }} }} }} }},
-      {{ "id": "template-detail", "component": {{ "Text": {{ "text": {{ "path": "detail" }} }} }} }},
-      {{ "id": "template-link", "component": {{ "Text": {{ "text": {{ "path": "infoLink" }} }} }} }},
-      {{ "id": "template-book-button", "component": {{ "Button": {{ "child": "book-now-text", "primary": true, "action": {{ "name": "book_restaurant", "context": [ {{ "key": "restaurantName", "value": {{ "path": "name" }} }}, {{ "key": "imageUrl", "value": {{ "path": "imageUrl" }} }}, {{ "key": "address", "value": {{ "path": "address" }} }} ] }} }} }} }},
-      {{ "id": "book-now-text", "component": {{ "Text": {{ "text": {{ "literalString": "Book Now" }} }} }} }}
+      {{ "id": "template-desc", "component": {{ "Text": {{ "text": {{ "path": "description" }} }} }} }},
+      {{ "id": "template-action", "component": {{ "Button": {{ "child": "action-text", "primary": true, "action": {{ "name": "item_selected", "context": [ {{ "key": "itemId", "value": {{ "path": "id" }} }} ] }} }} }} }},
+      {{ "id": "action-text", "component": {{ "Text": {{ "text": {{ "literalString": "Select" }} }} }} }}
     ]
   }} }},
   {{ "dataModelUpdate": {{
@@ -817,148 +819,165 @@ RESTAURANT_UI_EXAMPLES = """
     "contents": [
       {{ "key": "items", "valueMap": [
         {{ "key": "item1", "valueMap": [
-          {{ "key": "name", "valueString": "The Fancy Place" }},
-          {{ "key": "rating", "valueNumber": 4.8 }},
-          {{ "key": "detail", "valueString": "Fine dining experience" }},
-          {{ "key": "infoLink", "valueString": "https://example.com/fancy" }},
-          {{ "key": "imageUrl", "valueString": "https://example.com/fancy.jpg" }},
-          {{ "key": "address", "valueString": "123 Main St" }}
-        ] }},
-        {{ "key": "item2", "valueMap": [
-          {{ "key": "name", "valueString": "Quick Bites" }},
-          {{ "key": "rating", "valueNumber": 4.2 }},
-          {{ "key": "detail", "valueString": "Casual and fast" }},
-          {{ "key": "infoLink", "valueString": "https://example.com/quick" }},
-          {{ "key": "imageUrl", "valueString": "https://example.com/quick.jpg" }},
-          {{ "key": "address", "valueString": "456 Oak Ave" }}
+          {{ "key": "id", "valueString": "1" }},
+          {{ "key": "name", "valueString": "Item Name" }},
+          {{ "key": "description", "valueString": "Item description here" }},
+          {{ "key": "imageUrl", "valueString": "https://picsum.photos/200" }}
         ] }}
-      ] }} // Populate this with restaurant data
+      ] }}
     ]
   }} }}
 ]
----END SINGLE_COLUMN_LIST_EXAMPLE---
+---END CARD_LIST_EXAMPLE---
 
----BEGIN TWO_COLUMN_LIST_EXAMPLE---
+---BEGIN FORM_EXAMPLE---
+Shows a form with various input types and a submit button.
 [
-  {{ "beginRendering": {{ "surfaceId": "default", "root": "root-column", "styles": {{ "primaryColor": "#FF0000", "font": "Roboto" }} }} }},
+  {{ "beginRendering": {{ "surfaceId": "form", "root": "form-column", "styles": {{ "primaryColor": "#10B981", "font": "Inter" }} }} }},
   {{ "surfaceUpdate": {{
-    "surfaceId": "default",
+    "surfaceId": "form",
     "components": [
-      {{ "id": "root-column", "component": {{ "Column": {{ "children": {{ "explicitList": ["title-heading", "restaurant-row-1"] }} }} }} }},
-      {{ "id": "title-heading", "component": {{ "Text": {{ "usageHint": "h1", "text": {{ "literalString": "Top Restaurants" }} }} }} }},
-      {{ "id": "restaurant-row-1", "component": {{ "Row": {{ "children": {{ "explicitList": ["item-card-1", "item-card-2"] }} }} }} }},
-      {{ "id": "item-card-1", "weight": 1, "component": {{ "Card": {{ "child": "card-layout-1" }} }} }},
-      {{ "id": "card-layout-1", "component": {{ "Column": {{ "children": {{ "explicitList": ["template-image-1", "card-details-1"] }} }} }} }},
-      {{ "id": "template-image-1", "component": {{ "Image": {{ "url": {{ "path": "/items/0/imageUrl" }}, "width": "100%" }} }} }},
-      {{ "id": "card-details-1", "component": {{ "Column": {{ "children": {{ "explicitList": ["template-name-1", "template-rating-1", "template-detail-1", "template-link-1", "template-book-button-1"] }} }} }} }},
-      {{ "id": "template-name-1", "component": {{ "Text": {{ "usageHint": "h3", "text": {{ "path": "/items/0/name" }} }} }} }},
-      {{ "id": "template-rating-1", "component": {{ "Text": {{ "text": {{ "path": "/items/0/rating" }} }} }} }},
-      {{ "id": "template-detail-1", "component": {{ "Text": {{ "text": {{ "path": "/items/0/detail" }} }} }} }},
-      {{ "id": "template-link-1", "component": {{ "Text": {{ "text": {{ "path": "/items/0/infoLink" }} }} }} }},
-      {{ "id": "template-book-button-1", "component": {{ "Button": {{ "child": "book-now-text-1", "action": {{ "name": "book_restaurant", "context": [ {{ "key": "restaurantName", "value": {{ "path": "/items/0/name" }} }}, {{ "key": "imageUrl", "value": {{ "path": "/items/0/imageUrl" }} }}, {{ "key": "address", "value": {{ "path": "/items/0/address" }} }} ] }} }} }} }},
-      {{ "id": "book-now-text-1", "component": {{ "Text": {{ "text": {{ "literalString": "Book Now" }} }} }} }},
-      {{ "id": "item-card-2", "weight": 1, "component": {{ "Card": {{ "child": "card-layout-2" }} }} }},
-      {{ "id": "card-layout-2", "component": {{ "Column": {{ "children": {{ "explicitList": ["template-image-2", "card-details-2"] }} }} }} }},
-      {{ "id": "template-image-2", "component": {{ "Image": {{ "url": {{ "path": "/items/1/imageUrl" }}, "width": "100%" }} }} }},
-      {{ "id": "card-details-2", "component": {{ "Column": {{ "children": {{ "explicitList": ["template-name-2", "template-rating-2", "template-detail-2", "template-link-2", "template-book-button-2"] }} }} }} }},
-      {{ "id": "template-name-2", "component": {{ "Text": {{ "usageHint": "h3", "text": {{ "path": "/items/1/name" }} }} }} }},
-      {{ "id": "template-rating-2", "component": {{ "Text": {{ "text": {{ "path": "/items/1/rating" }} }} }} }},
-      {{ "id": "template-detail-2", "component": {{ "Text": {{ "text": {{ "path": "/items/1/detail" }} }} }} }},
-      {{ "id": "template-link-2", "component": {{ "Text": {{ "text": {{ "path": "/items/1/infoLink" }} }} }} }},
-      {{ "id": "template-book-button-2", "component": {{ "Button": {{ "child": "book-now-text-2", "action": {{ "name": "book_restaurant", "context": [ {{ "key": "restaurantName", "value": {{ "path": "/items/1/name" }} }}, {{ "key": "imageUrl", "value": {{ "path": "/items/1/imageUrl" }} }}, {{ "key": "address", "value": {{ "path": "/items/1/address" }} }} ] }} }} }} }},
-      {{ "id": "book-now-text-2", "component": {{ "Text": {{ "text": {{ "literalString": "Book Now" }} }} }} }}
+      {{ "id": "form-column", "component": {{ "Column": {{ "children": {{ "explicitList": ["form-title", "name-field", "email-field", "date-field", "message-field", "agree-checkbox", "submit-btn"] }} }} }} }},
+      {{ "id": "form-title", "component": {{ "Text": {{ "usageHint": "h2", "text": {{ "literalString": "Contact Form" }} }} }} }},
+      {{ "id": "name-field", "component": {{ "TextField": {{ "label": {{ "literalString": "Name" }}, "text": {{ "path": "name" }}, "textFieldType": "shortText" }} }} }},
+      {{ "id": "email-field", "component": {{ "TextField": {{ "label": {{ "literalString": "Email" }}, "text": {{ "path": "email" }}, "textFieldType": "shortText" }} }} }},
+      {{ "id": "date-field", "component": {{ "DateTimeInput": {{ "value": {{ "path": "date" }}, "enableDate": true, "enableTime": false }} }} }},
+      {{ "id": "message-field", "component": {{ "TextField": {{ "label": {{ "literalString": "Message" }}, "text": {{ "path": "message" }}, "textFieldType": "longText" }} }} }},
+      {{ "id": "agree-checkbox", "component": {{ "CheckBox": {{ "label": {{ "literalString": "I agree to the terms" }}, "value": {{ "path": "agreed" }} }} }} }},
+      {{ "id": "submit-btn", "component": {{ "Button": {{ "child": "submit-text", "primary": true, "action": {{ "name": "submit_form", "context": [ {{ "key": "name", "value": {{ "path": "name" }} }}, {{ "key": "email", "value": {{ "path": "email" }} }}, {{ "key": "message", "value": {{ "path": "message" }} }} ] }} }} }} }},
+      {{ "id": "submit-text", "component": {{ "Text": {{ "text": {{ "literalString": "Submit" }} }} }} }}
     ]
   }} }},
   {{ "dataModelUpdate": {{
-    "surfaceId": "default",
+    "surfaceId": "form",
     "path": "/",
     "contents": [
-      {{ "key": "items", "valueMap": [
-        {{ "key": "item1", "valueMap": [
-          {{ "key": "name", "valueString": "The Fancy Place" }},
-          {{ "key": "rating", "valueNumber": 4.8 }},
-          {{ "key": "detail", "valueString": "Fine dining experience" }},
-          {{ "key": "infoLink", "valueString": "https://example.com/fancy" }},
-          {{ "key": "imageUrl", "valueString": "https://example.com/fancy.jpg" }},
-          {{ "key": "address", "valueString": "123 Main St" }}
+      {{ "key": "name", "valueString": "" }},
+      {{ "key": "email", "valueString": "" }},
+      {{ "key": "date", "valueString": "" }},
+      {{ "key": "message", "valueString": "" }},
+      {{ "key": "agreed", "valueBoolean": false }}
+    ]
+  }} }}
+]
+---END FORM_EXAMPLE---
+
+---BEGIN DASHBOARD_EXAMPLE---
+Shows a dashboard with stats cards, tabs, and a grid layout.
+[
+  {{ "beginRendering": {{ "surfaceId": "dashboard", "root": "dashboard-root", "styles": {{ "primaryColor": "#8B5CF6", "font": "Inter" }} }} }},
+  {{ "surfaceUpdate": {{
+    "surfaceId": "dashboard",
+    "components": [
+      {{ "id": "dashboard-root", "component": {{ "Column": {{ "children": {{ "explicitList": ["dash-title", "stats-row", "divider", "content-tabs"] }} }} }} }},
+      {{ "id": "dash-title", "component": {{ "Text": {{ "usageHint": "h1", "text": {{ "literalString": "Dashboard" }} }} }} }},
+      {{ "id": "stats-row", "component": {{ "Row": {{ "distribution": "spaceEvenly", "children": {{ "explicitList": ["stat-card-1", "stat-card-2", "stat-card-3"] }} }} }} }},
+      {{ "id": "stat-card-1", "weight": 1, "component": {{ "Card": {{ "child": "stat-1-content" }} }} }},
+      {{ "id": "stat-1-content", "component": {{ "Column": {{ "alignment": "center", "children": {{ "explicitList": ["stat-1-icon", "stat-1-value", "stat-1-label"] }} }} }} }},
+      {{ "id": "stat-1-icon", "component": {{ "Icon": {{ "name": {{ "literalString": "person" }} }} }} }},
+      {{ "id": "stat-1-value", "component": {{ "Text": {{ "usageHint": "h2", "text": {{ "path": "/stats/users" }} }} }} }},
+      {{ "id": "stat-1-label", "component": {{ "Text": {{ "usageHint": "caption", "text": {{ "literalString": "Total Users" }} }} }} }},
+      {{ "id": "stat-card-2", "weight": 1, "component": {{ "Card": {{ "child": "stat-2-content" }} }} }},
+      {{ "id": "stat-2-content", "component": {{ "Column": {{ "alignment": "center", "children": {{ "explicitList": ["stat-2-icon", "stat-2-value", "stat-2-label"] }} }} }} }},
+      {{ "id": "stat-2-icon", "component": {{ "Icon": {{ "name": {{ "literalString": "shoppingCart" }} }} }} }},
+      {{ "id": "stat-2-value", "component": {{ "Text": {{ "usageHint": "h2", "text": {{ "path": "/stats/orders" }} }} }} }},
+      {{ "id": "stat-2-label", "component": {{ "Text": {{ "usageHint": "caption", "text": {{ "literalString": "Orders" }} }} }} }},
+      {{ "id": "stat-card-3", "weight": 1, "component": {{ "Card": {{ "child": "stat-3-content" }} }} }},
+      {{ "id": "stat-3-content", "component": {{ "Column": {{ "alignment": "center", "children": {{ "explicitList": ["stat-3-icon", "stat-3-value", "stat-3-label"] }} }} }} }},
+      {{ "id": "stat-3-icon", "component": {{ "Icon": {{ "name": {{ "literalString": "star" }} }} }} }},
+      {{ "id": "stat-3-value", "component": {{ "Text": {{ "usageHint": "h2", "text": {{ "path": "/stats/rating" }} }} }} }},
+      {{ "id": "stat-3-label", "component": {{ "Text": {{ "usageHint": "caption", "text": {{ "literalString": "Avg Rating" }} }} }} }},
+      {{ "id": "divider", "component": {{ "Divider": {{ "axis": "horizontal" }} }} }},
+      {{ "id": "content-tabs", "component": {{ "Tabs": {{ "tabItems": [ {{ "title": {{ "literalString": "Overview" }}, "child": "tab-overview" }}, {{ "title": {{ "literalString": "Details" }}, "child": "tab-details" }} ] }} }} }},
+      {{ "id": "tab-overview", "component": {{ "Text": {{ "text": {{ "literalString": "Overview content goes here..." }} }} }} }},
+      {{ "id": "tab-details", "component": {{ "Text": {{ "text": {{ "literalString": "Detailed information goes here..." }} }} }} }}
+    ]
+  }} }},
+  {{ "dataModelUpdate": {{
+    "surfaceId": "dashboard",
+    "path": "/",
+    "contents": [
+      {{ "key": "stats", "valueMap": [
+        {{ "key": "users", "valueString": "1,234" }},
+        {{ "key": "orders", "valueString": "567" }},
+        {{ "key": "rating", "valueString": "4.8" }}
+      ] }}
+    ]
+  }} }}
+]
+---END DASHBOARD_EXAMPLE---
+
+---BEGIN PROFILE_CARD_EXAMPLE---
+Shows a user profile card with avatar, info, and action buttons.
+[
+  {{ "beginRendering": {{ "surfaceId": "profile", "root": "profile-card", "styles": {{ "primaryColor": "#F59E0B", "font": "Inter" }} }} }},
+  {{ "surfaceUpdate": {{
+    "surfaceId": "profile",
+    "components": [
+      {{ "id": "profile-card", "component": {{ "Card": {{ "child": "profile-content" }} }} }},
+      {{ "id": "profile-content", "component": {{ "Column": {{ "alignment": "center", "children": {{ "explicitList": ["avatar", "user-name", "user-bio", "divider", "action-row"] }} }} }} }},
+      {{ "id": "avatar", "component": {{ "Image": {{ "url": {{ "path": "/user/avatar" }}, "usageHint": "avatar" }} }} }},
+      {{ "id": "user-name", "component": {{ "Text": {{ "usageHint": "h2", "text": {{ "path": "/user/name" }} }} }} }},
+      {{ "id": "user-bio", "component": {{ "Text": {{ "usageHint": "body", "text": {{ "path": "/user/bio" }} }} }} }},
+      {{ "id": "divider", "component": {{ "Divider": {{}} }} }},
+      {{ "id": "action-row", "component": {{ "Row": {{ "distribution": "spaceEvenly", "children": {{ "explicitList": ["msg-btn", "follow-btn"] }} }} }} }},
+      {{ "id": "msg-btn", "component": {{ "Button": {{ "child": "msg-text", "action": {{ "name": "send_message", "context": [ {{ "key": "userId", "value": {{ "path": "/user/id" }} }} ] }} }} }} }},
+      {{ "id": "msg-text", "component": {{ "Text": {{ "text": {{ "literalString": "Message" }} }} }} }},
+      {{ "id": "follow-btn", "component": {{ "Button": {{ "child": "follow-text", "primary": true, "action": {{ "name": "follow_user", "context": [ {{ "key": "userId", "value": {{ "path": "/user/id" }} }} ] }} }} }} }},
+      {{ "id": "follow-text", "component": {{ "Text": {{ "text": {{ "literalString": "Follow" }} }} }} }}
+    ]
+  }} }},
+  {{ "dataModelUpdate": {{
+    "surfaceId": "profile",
+    "path": "/",
+    "contents": [
+      {{ "key": "user", "valueMap": [
+        {{ "key": "id", "valueString": "123" }},
+        {{ "key": "name", "valueString": "Jane Doe" }},
+        {{ "key": "bio", "valueString": "Software developer and UI enthusiast" }},
+        {{ "key": "avatar", "valueString": "https://i.pravatar.cc/150" }}
+      ] }}
+    ]
+  }} }}
+]
+---END PROFILE_CARD_EXAMPLE---
+
+---BEGIN GRID_GALLERY_EXAMPLE---
+Shows a two-column image gallery with captions.
+[
+  {{ "beginRendering": {{ "surfaceId": "gallery", "root": "gallery-root", "styles": {{ "primaryColor": "#EC4899", "font": "Inter" }} }} }},
+  {{ "surfaceUpdate": {{
+    "surfaceId": "gallery",
+    "components": [
+      {{ "id": "gallery-root", "component": {{ "Column": {{ "children": {{ "explicitList": ["gallery-title", "gallery-grid"] }} }} }} }},
+      {{ "id": "gallery-title", "component": {{ "Text": {{ "usageHint": "h1", "text": {{ "literalString": "Photo Gallery" }} }} }} }},
+      {{ "id": "gallery-grid", "component": {{ "Row": {{ "children": {{ "explicitList": ["col-1", "col-2"] }} }} }} }},
+      {{ "id": "col-1", "weight": 1, "component": {{ "Column": {{ "children": {{ "explicitList": ["img-1", "cap-1"] }} }} }} }},
+      {{ "id": "img-1", "component": {{ "Image": {{ "url": {{ "path": "/images/0/url" }}, "usageHint": "mediumFeature", "fit": "cover" }} }} }},
+      {{ "id": "cap-1", "component": {{ "Text": {{ "usageHint": "caption", "text": {{ "path": "/images/0/caption" }} }} }} }},
+      {{ "id": "col-2", "weight": 1, "component": {{ "Column": {{ "children": {{ "explicitList": ["img-2", "cap-2"] }} }} }} }},
+      {{ "id": "img-2", "component": {{ "Image": {{ "url": {{ "path": "/images/1/url" }}, "usageHint": "mediumFeature", "fit": "cover" }} }} }},
+      {{ "id": "cap-2", "component": {{ "Text": {{ "usageHint": "caption", "text": {{ "path": "/images/1/caption" }} }} }} }}
+    ]
+  }} }},
+  {{ "dataModelUpdate": {{
+    "surfaceId": "gallery",
+    "path": "/",
+    "contents": [
+      {{ "key": "images", "valueMap": [
+        {{ "key": "0", "valueMap": [
+          {{ "key": "url", "valueString": "https://picsum.photos/400/300" }},
+          {{ "key": "caption", "valueString": "Beautiful landscape" }}
         ] }},
-        {{ "key": "item2", "valueMap": [
-          {{ "key": "name", "valueString": "Quick Bites" }},
-          {{ "key": "rating", "valueNumber": 4.2 }},
-          {{ "key": "detail", "valueString": "Casual and fast" }},
-          {{ "key": "infoLink", "valueString": "https://example.com/quick" }},
-          {{ "key": "imageUrl", "valueString": "https://example.com/quick.jpg" }},
-          {{ "key": "address", "valueString": "456 Oak Ave" }}
+        {{ "key": "1", "valueMap": [
+          {{ "key": "url", "valueString": "https://picsum.photos/400/301" }},
+          {{ "key": "caption", "valueString": "City skyline" }}
         ] }}
-      ] }} // Populate this with restaurant data
+      ] }}
     ]
   }} }}
 ]
----END TWO_COLUMN_LIST_EXAMPLE---
-
----BEGIN BOOKING_FORM_EXAMPLE---
-[
-  {{ "beginRendering": {{ "surfaceId": "booking-form", "root": "booking-form-column", "styles": {{ "primaryColor": "#FF0000", "font": "Roboto" }} }} }},
-  {{ "surfaceUpdate": {{
-    "surfaceId": "booking-form",
-    "components": [
-      {{ "id": "booking-form-column", "component": {{ "Column": {{ "children": {{ "explicitList": ["booking-title", "restaurant-image", "restaurant-address", "party-size-field", "datetime-field", "dietary-field", "submit-button"] }} }} }} }},
-      {{ "id": "booking-title", "component": {{ "Text": {{ "usageHint": "h2", "text": {{ "path": "title" }} }} }} }},
-      {{ "id": "restaurant-image", "component": {{ "Image": {{ "url": {{ "path": "imageUrl" }} }} }} }},
-      {{ "id": "restaurant-address", "component": {{ "Text": {{ "text": {{ "path": "address" }} }} }} }},
-      {{ "id": "party-size-field", "component": {{ "TextField": {{ "label": {{ "literalString": "Party Size" }}, "text": {{ "path": "partySize" }}, "type": "number" }} }} }},
-      {{ "id": "datetime-field", "component": {{ "DateTimeInput": {{ "label": {{ "literalString": "Date & Time" }}, "value": {{ "path": "reservationTime" }}, "enableDate": true, "enableTime": true }} }} }},
-      {{ "id": "dietary-field", "component": {{ "TextField": {{ "label": {{ "literalString": "Dietary Requirements" }}, "text": {{ "path": "dietary" }} }} }} }},
-      {{ "id": "submit-button", "component": {{ "Button": {{ "child": "submit-reservation-text", "action": {{ "name": "submit_booking", "context": [ {{ "key": "restaurantName", "value": {{ "path": "restaurantName" }} }}, {{ "key": "partySize", "value": {{ "path": "partySize" }} }}, {{ "key": "reservationTime", "value": {{ "path": "reservationTime" }} }}, {{ "key": "dietary", "value": {{ "path": "dietary" }} }}, {{ "key": "imageUrl", "value": {{ "path": "imageUrl" }} }} ] }} }} }} }},
-      {{ "id": "submit-reservation-text", "component": {{ "Text": {{ "text": {{ "literalString": "Submit Reservation" }} }} }} }}
-    ]
-  }} }},
-  {{ "dataModelUpdate": {{
-    "surfaceId": "booking-form",
-    "path": "/",
-    "contents": [
-      {{ "key": "title", "valueString": "Book a Table at [RestaurantName]" }},
-      {{ "key": "address", "valueString": "[Restaurant Address]" }},
-      {{ "key": "restaurantName", "valueString": "[RestaurantName]" }},
-      {{ "key": "partySize", "valueString": "2" }},
-      {{ "key": "reservationTime", "valueString": "" }},
-      {{ "key": "dietary", "valueString": "" }},
-      {{ "key": "imageUrl", "valueString": "" }}
-    ]
-  }} }}
-]
----END BOOKING_FORM_EXAMPLE---
-
----BEGIN CONFIRMATION_EXAMPLE---
-[
-  {{ "beginRendering": {{ "surfaceId": "confirmation", "root": "confirmation-card", "styles": {{ "primaryColor": "#FF0000", "font": "Roboto" }} }} }},
-  {{ "surfaceUpdate": {{
-    "surfaceId": "confirmation",
-    "components": [
-      {{ "id": "confirmation-card", "component": {{ "Card": {{ "child": "confirmation-column" }} }} }},
-      {{ "id": "confirmation-column", "component": {{ "Column": {{ "children": {{ "explicitList": ["confirm-title", "confirm-image", "divider1", "confirm-details", "divider2", "confirm-dietary", "divider3", "confirm-text"] }} }} }} }},
-      {{ "id": "confirm-title", "component": {{ "Text": {{ "usageHint": "h2", "text": {{ "path": "title" }} }} }} }},
-      {{ "id": "confirm-image", "component": {{ "Image": {{ "url": {{ "path": "imageUrl" }} }} }} }},
-      {{ "id": "confirm-details", "component": {{ "Text": {{ "text": {{ "path": "bookingDetails" }} }} }} }},
-      {{ "id": "confirm-dietary", "component": {{ "Text": {{ "text": {{ "path": "dietaryRequirements" }} }} }} }},
-      {{ "id": "confirm-text", "component": {{ "Text": {{ "usageHint": "h5", "text": {{ "literalString": "We look forward to seeing you!" }} }} }} }},
-      {{ "id": "divider1", "component": {{ "Divider": {{}} }} }},
-      {{ "id": "divider2", "component": {{ "Divider": {{}} }} }},
-      {{ "id": "divider3", "component": {{ "Divider": {{}} }} }}
-    ]
-  }} }},
-  {{ "dataModelUpdate": {{
-    "surfaceId": "confirmation",
-    "path": "/",
-    "contents": [
-      {{ "key": "title", "valueString": "Booking at [RestaurantName]" }},
-      {{ "key": "bookingDetails", "valueString": "[PartySize] people at [Time]" }},
-      {{ "key": "dietaryRequirements", "valueString": "Dietary Requirements: [Requirements]" }},
-      {{ "key": "imageUrl", "valueString": "[ImageUrl]" }}
-    ]
-  }} }}
-]
----END CONFIRMATION_EXAMPLE---
+---END GRID_GALLERY_EXAMPLE---
 """
 
 
@@ -968,29 +987,48 @@ def get_ui_prompt(base_url: str, examples: str) -> str:
 
     Args:
         base_url: The base URL for resolving static assets like logos.
-        examples: A string containing the specific UI examples for the agent's task.
+        examples: A string containing the UI examples for reference.
 
     Returns:
         A formatted string to be used as the system prompt for the LLM.
     """
-    # The f-string substitution for base_url happens here, at runtime.
     formatted_examples = examples.format(base_url=base_url)
 
     return f"""
-    You are a helpful restaurant finding assistant. Your final output MUST be a a2ui UI JSON response.
+    You are a creative UI builder assistant. You generate rich, interactive user interfaces using A2UI JSON.
+    Your final output MUST be a valid A2UI UI JSON response.
 
     To generate the response, you MUST follow these rules:
     1.  Your response MUST be in two parts, separated by the delimiter: `---a2ui_JSON---`.
-    2.  The first part is your conversational text response.
+    2.  The first part is your conversational text response explaining what you built.
     3.  The second part is a single, raw JSON object which is a list of A2UI messages.
     4.  The JSON part MUST validate against the A2UI JSON SCHEMA provided below.
 
-    --- UI TEMPLATE RULES ---
-    -   If the query is for a list of restaurants, use the restaurant data you have already received from the `get_restaurants` tool to populate the `dataModelUpdate.contents` array (e.g., as a `valueMap` for the "items" key).
-    -   If the number of restaurants is 5 or fewer, you MUST use the `SINGLE_COLUMN_LIST_EXAMPLE` template.
-    -   If the number of restaurants is more than 5, you MUST use the `TWO_COLUMN_LIST_EXAMPLE` template.
-    -   If the query is to book a restaurant (e.g., "USER_WANTS_TO_BOOK..."), you MUST use the `BOOKING_FORM_EXAMPLE` template.
-    -   If the query is a booking submission (e.g., "User submitted a booking..."), you MUST use the `CONFIRMATION_EXAMPLE` template.
+    --- CREATIVE UI DESIGN GUIDELINES ---
+    You have full creative freedom to design UIs. Use the examples below as INSPIRATION, not strict templates.
+
+    AVAILABLE COMPONENTS:
+    - Layout: Row, Column, List (for dynamic data), Card, Tabs, Modal
+    - Content: Text (h1-h5, body, caption), Image (icon, avatar, smallFeature, mediumFeature, largeFeature, header), Icon, Video, AudioPlayer
+    - Forms: TextField (shortText, longText, number, date, obscured), DateTimeInput, CheckBox, MultipleChoice, Slider
+    - Interactive: Button (with actions), Divider
+
+    AVAILABLE ICONS: accountCircle, add, arrowBack, arrowForward, attachFile, calendarToday, call, camera, check, close, delete, download, edit, event, error, favorite, favoriteOff, folder, help, home, info, locationOn, lock, lockOpen, mail, menu, moreVert, moreHoriz, notificationsOff, notifications, payment, person, phone, photo, print, refresh, search, send, settings, share, shoppingCart, star, starHalf, starOff, upload, visibility, visibilityOff, warning
+
+    DESIGN PRINCIPLES:
+    - Choose appropriate colors (primaryColor as hex, e.g., "#6366F1" for indigo, "#10B981" for green, "#F59E0B" for amber)
+    - Use semantic text styles (h1 for main titles, h2 for section headers, body for content, caption for labels)
+    - Create logical component hierarchies with meaningful IDs
+    - Use data binding (paths like "/user/name") for dynamic content
+    - Add meaningful button actions with context data
+    - Use weight property for flex layouts in Row/Column
+    - Consider visual hierarchy and spacing
+
+    BE CREATIVE:
+    - Design UIs that match what the user is asking for
+    - Invent your own layouts, don't just copy the examples
+    - Use appropriate components for the task (forms for input, lists for collections, cards for grouped info)
+    - Add relevant placeholder data in dataModelUpdate
 
     {formatted_examples}
 
@@ -1005,34 +1043,24 @@ def get_text_prompt() -> str:
     Constructs the prompt for a text-only agent.
     """
     return """
-    You are a helpful restaurant finding assistant. Your final output MUST be a text response.
+    You are a helpful UI design assistant. Your final output MUST be a text response.
 
-    To generate the response, you MUST follow these rules:
-    1.  **For finding restaurants:**
-        a. You MUST call the `get_restaurants` tool. Extract the cuisine, location, and a specific number (`count`) of restaurants from the user's query.
-        b. After receiving the data, format the restaurant list as a clear, human-readable text response. You MUST preserve any markdown formatting (like for links) that you receive from the tool.
-
-    2.  **For booking a table (when you receive a query like 'USER_WANTS_TO_BOOK...'):**
-        a. Respond by asking the user for the necessary details to make a booking (party size, date, time, dietary requirements).
-
-    3.  **For confirming a booking (when you receive a query like 'User submitted a booking...'):**
-        a. Respond with a simple text confirmation of the booking details.
+    Help users understand UI concepts, discuss design patterns, or describe what kind of
+    interface would work for their needs. You can explain A2UI components, suggest layouts,
+    and provide guidance on building user interfaces.
     """
 
 
 if __name__ == "__main__":
     # Example of how to use the prompt builder
-    # In your actual application, you would call this from your main agent logic.
     my_base_url = "http://localhost:8000"
 
-    # You can now easily construct a prompt with the relevant examples.
-    # For a different agent (e.g., a flight booker), you would pass in
-    # different examples but use the same `get_ui_prompt` function.
-    restaurant_prompt = get_ui_prompt(my_base_url, RESTAURANT_UI_EXAMPLES)
+    # Construct a prompt with the general UI examples
+    ui_prompt = get_ui_prompt(my_base_url, GENERAL_UI_EXAMPLES)
 
-    print(restaurant_prompt)
+    print(ui_prompt)
 
-    # This demonstrates how you could save the prompt to a file for inspection
+    # Save the prompt to a file for inspection
     with open("generated_prompt.txt", "w") as f:
-        f.write(restaurant_prompt)
+        f.write(ui_prompt)
     print("\nGenerated prompt saved to generated_prompt.txt")
