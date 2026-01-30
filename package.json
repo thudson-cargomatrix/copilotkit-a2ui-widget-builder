@@ -6,16 +6,13 @@
   "scripts": {
     "dev": "concurrently \"npm run dev:ui\" \"npm run dev:agent\" --names ui,agent --prefix-colors blue,green --kill-others",
     "dev:debug": "LOG_LEVEL=debug npm run dev",
-    "dev:agent": "npm run dev:agent:ts",
-    "dev:agent:ts": "cd agent-ts && npm run dev",
-    "dev:agent:python": "./scripts/run-agent.sh || scripts/run-agent.bat",
+    "dev:agent": "cd agent-ts && npm run dev",
     "dev:ui": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "install:agent": "./scripts/setup-agent.sh || scripts\\setup-agent.bat",
-    "install:agent:ts": "cd agent-ts && npm install",
-    "postinstall": "npm run install:agent:ts"
+    "install:agent": "cd agent-ts && npm install",
+    "postinstall": "npm run install:agent"
   },
   "dependencies": {
     "@a2a-js/sdk": "0.2.5",

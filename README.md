@@ -26,7 +26,7 @@ This project demonstrates how AI agents can generate dynamic user interfaces on-
                                    │ A2A Protocol
                                    ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                      Agent (Python + Google ADK)                 │
+│                   Agent (TypeScript + Google ADK)                │
 │  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────┐ │
 │  │  UIBuilder      │───▶│  LLM (Gemini)   │───▶│ A2UI JSON   │ │
 │  │  Agent          │    │                 │    │ Generator   │ │
@@ -37,7 +37,7 @@ This project demonstrates how AI agents can generate dynamic user interfaces on-
 ### How It Works
 
 1. **User sends a message** via the CopilotChat interface
-2. **CopilotKit Runtime** routes the request to the Python agent via A2A protocol
+2. **CopilotKit Runtime** routes the request to the TypeScript agent via A2A protocol
 3. **UIBuilder Agent** (powered by Gemini) interprets the request and generates A2UI JSON
 4. **A2UI Renderer** converts the JSON into interactive React components
 5. **User interacts** with buttons, forms, etc. - actions are sent back to the agent
@@ -57,16 +57,15 @@ This project demonstrates how AI agents can generate dynamic user interfaces on-
 | **Hono** | Lightweight web framework for API routes |
 | **Zod** | Schema validation |
 
-### Backend (Python Agent)
+### Backend (TypeScript Agent)
 | Technology | Purpose |
 |------------|---------|
-| **Python 3.13+** | Runtime |
-| **Google ADK** | Agent Development Kit |
-| **LiteLLM** | LLM abstraction layer |
+| **Node.js 20+** | Runtime |
+| **@google/adk** | Google Agent Development Kit |
+| **@a2a-js/sdk** | A2A protocol SDK |
 | **Gemini** | LLM (via Google AI) |
-| **A2A SDK** | Agent-to-Agent protocol |
-| **Uvicorn** | ASGI server |
-| **Starlette** | Web framework |
+| **Express** | Web framework |
+| **Zod** | Schema validation |
 
 ### Protocols
 | Protocol | Purpose |
@@ -123,7 +122,7 @@ visibilityOff, warning
 ## Project Structure
 
 ```
-with-a2a-a2ui/
+copilotkit-a2ui-widget-builder/
 ├── app/                          # Next.js frontend
 │   ├── api/copilotkit/          # CopilotKit API route
 │   │   └── [[...slug]]/route.tsx
@@ -132,17 +131,17 @@ with-a2a-a2ui/
 │   ├── layout.tsx               # Root layout
 │   └── globals.css              # Global styles
 │
-├── agent/                        # Python agent
-│   ├── __main__.py              # Entry point & A2A server
-│   ├── agent.py                 # UIBuilderAgent class
-│   ├── agent_executor.py        # Request handler
-│   ├── prompt_builder.py        # Prompts & UI examples
-│   ├── tools.py                 # Agent tools (optional)
-│   └── pyproject.toml           # Python dependencies
+├── agent-ts/                     # TypeScript agent
+│   ├── src/
+│   │   ├── index.ts             # Entry point & A2A server
+│   │   ├── agent.ts             # UIBuilderAgent class
+│   │   ├── agent-executor.ts    # AgentExecutor implementation
+│   │   ├── prompt-builder.ts    # Prompts & UI examples
+│   │   └── a2ui-extension.ts    # A2UI DataPart utilities
+│   ├── package.json             # Agent dependencies
+│   └── tsconfig.json            # TypeScript config
 │
-├── a2ui_extension/              # A2UI protocol extension
-├── scripts/                     # Setup & run scripts
-├── package.json                 # Node dependencies
+├── package.json                 # Root dependencies
 └── .env                         # Environment variables
 ```
 
@@ -150,23 +149,21 @@ with-a2a-a2ui/
 
 ### Prerequisites
 - Node.js 20+
-- Python 3.13+
-- pnpm (recommended), npm, yarn, or bun
-- uv (Python package manager)
+- npm, pnpm, yarn, or bun
 
 ### Installation
 
 1. **Clone the repository**
    ```bash
    git clone <your-repo-url>
-   cd with-a2a-a2ui
+   cd copilotkit-a2ui-widget-builder
    ```
 
 2. **Install dependencies**
    ```bash
-   pnpm install
+   npm install
    ```
-   This also runs `postinstall` which sets up the Python agent with `uv sync`.
+   This also runs `postinstall` which installs the TypeScript agent dependencies.
 
 3. **Set up environment variables**
    Create a `.env` file in the root:
@@ -177,16 +174,16 @@ with-a2a-a2ui/
 
 4. **Run the development server**
    ```bash
-   pnpm dev
+   npm run dev
    ```
 
    Or run frontend and agent separately:
    ```bash
    # Terminal 1 - Frontend
-   pnpm dev:ui
+   npm run dev:ui
 
    # Terminal 2 - Agent
-   cd agent && uv run python __main__.py
+   npm run dev:agent
    ```
 
 5. **Open in browser**
@@ -197,14 +194,14 @@ with-a2a-a2ui/
 
 | Script | Description |
 |--------|-------------|
-| `pnpm dev` | Start both UI and agent servers |
-| `pnpm dev:debug` | Start with debug logging |
-| `pnpm dev:ui` | Start only Next.js frontend |
-| `pnpm dev:agent` | Start only Python agent |
-| `pnpm build` | Build for production |
-| `pnpm start` | Start production server |
-| `pnpm lint` | Run ESLint |
-| `pnpm install:agent` | Install Python dependencies |
+| `npm run dev` | Start both UI and agent servers |
+| `npm run dev:debug` | Start with debug logging |
+| `npm run dev:ui` | Start only Next.js frontend |
+| `npm run dev:agent` | Start only TypeScript agent |
+| `npm run build` | Build for production |
+| `npm run start` | Start production server |
+| `npm run lint` | Run ESLint |
+| `npm run install:agent` | Install agent dependencies |
 
 ## How the Agent Generates UIs
 
@@ -268,10 +265,10 @@ Here's a contact form for you!
 ## Customization
 
 ### Modify the Agent Prompt
-Edit `agent/prompt_builder.py`:
+Edit `agent-ts/src/prompt-builder.ts`:
 - `GENERAL_UI_EXAMPLES` - Add or modify example UI templates
-- `get_ui_prompt()` - Adjust creative guidelines
-- `AGENT_INSTRUCTION` in `agent.py` - Change agent behavior
+- `getUIPrompt()` - Adjust creative guidelines
+- `AGENT_INSTRUCTION` in `agent.ts` - Change agent behavior
 
 ### Customize the Theme
 Edit `app/theme.ts` to change:
@@ -281,17 +278,19 @@ Edit `app/theme.ts` to change:
 - Border radius, padding, spacing
 
 ### Add Custom Tools
-Edit `agent/tools.py` to add tools the agent can use:
-```python
-def my_custom_tool(param: str) -> str:
-    """Description of what this tool does."""
-    return result
+Edit `agent-ts/src/agent.ts` to add tools the agent can use:
+```typescript
+const myCustomTool = {
+  name: "my_custom_tool",
+  description: "Description of what this tool does",
+  parameters: z.object({ param: z.string() }),
+  execute: async ({ param }: { param: string }) => {
+    return result;
+  }
+};
 ```
 
-Then register in `agent.py`:
-```python
-tools=[my_custom_tool]
-```
+Then register in the agent's tools array.
 
 ## Key Concepts
 
@@ -310,7 +309,7 @@ tools=[my_custom_tool]
 - **Data binding** - Components reference data model paths
 
 ### A2A (Agent-to-Agent)
-The A2A protocol enables communication between AI agents. The Python agent runs as an A2A server:
+The A2A protocol enables communication between AI agents. The TypeScript agent runs as an A2A server:
 - Receives requests via HTTP
 - Returns responses including A2UI messages
 - Handles button actions and form submissions
@@ -323,23 +322,25 @@ If you see connection errors:
 2. Check your Gemini API key is set correctly in `.env`
 3. Verify both servers started successfully
 
-### Python Dependencies
+### Agent Dependencies
 If you encounter import errors:
 ```bash
-cd agent
-uv sync
-uv run python __main__.py
+cd agent-ts
+npm install
+npm run dev
 ```
 
-### Windows Issues
-If scripts fail on Windows, run commands manually:
+### Port Already in Use
+If port 10002 is already in use:
 ```bash
-# Frontend
-pnpm dev:ui
+# Find and kill the process using the port
+# Windows
+netstat -ano | findstr :10002
+taskkill /F /PID <pid>
 
-# Agent (in separate terminal)
-cd agent
-python -m uv run python __main__.py
+# Mac/Linux
+lsof -i :10002
+kill -9 <pid>
 ```
 
 ## Resources
@@ -347,7 +348,7 @@ python -m uv run python __main__.py
 - [CopilotKit Documentation](https://docs.copilotkit.ai)
 - [A2UI Specification](https://a2ui.org)
 - [A2UI Composer](https://a2ui-composer.ag-ui.com/) - Visual UI builder tool
-- [Google ADK](https://github.com/google/adk-python)
+- [Google ADK](https://github.com/google/adk-node)
 - [A2A Protocol](https://github.com/google/A2A)
 - [A2UI + CopilotKit Docs](https://docs.copilotkit.ai/a2a)
 
